@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mongo:latest
+    volumes: 
+      - /Users/ecomindo/Work/Labs/Docker/EcomindoWorkshop/Sesi3/mongodb-data:/data/db
+    restart: always
+    ports:
+      - "27017:27017"
+  init:
+    image: zakiraihan/neuro-init
+    environment:
+      MONGODB_CONNECTION: mongodb://db:27017/contentdb
+    depends_on:
+      - db
+  api:
+    image: zakiraihan/neuro-api
+    environment:
+      MONGODB_CONNECTION: mongodb://db:27017/contentdb
+    depends_on:
+      init:
+        condition: service_completed_successfully
+  app:
+    image: zakiraihan/neuro-web
+    ports:
+      - "3000:3000"
+    environment:
+      CONTENT_API_URL: http://api:3001
+    depends_on:
+    - api
+
